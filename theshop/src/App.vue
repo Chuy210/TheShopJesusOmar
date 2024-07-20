@@ -18,10 +18,10 @@
           </v-card>
           <!-- New Product Form -->
           <v-card
-            max-width="50%"
+            max-width="80%"
             elevation="4"
             class="my-5 px-3"
-            style="margin-left: 25%; "
+            style="margin-left: 10%; "
           >
             <form>
               <v-row>
@@ -46,11 +46,30 @@
                   <v-subheader>Product Name</v-subheader>
                 </v-col>
                 <v-col cols="8">
-                  <v-text-field
-                    v-model="editedProduct.name"
-                    label="Name"
-                    :rules="requireRules"
-                  ></v-text-field>
+                  <v-row>
+                    <v-col cols="4">
+                      <v-text-field
+                        v-model="productCode"
+                        label="Product Code"
+                        :rules="rulesAlphaN"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="4">
+                      <v-text-field
+                        v-model="Name"
+                        label="Name"
+                        :rules="requireRules"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="4">
+                      <v-text-field
+                        v-model="SKU"
+                        label="SKU"
+                        :rules="numberRule"
+                      @keypress="isNumberKey($event)"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
               <v-row>
@@ -71,11 +90,19 @@
                   <v-subheader>Price</v-subheader>
                 </v-col>
                 <v-col cols="8">
-                  <v-text-field
+                  <!-- <v-text-field
                     v-model="editedProduct.price"
                     label="Price"
                     prefix="$"
-                  ></v-text-field>
+                  ></v-text-field> -->
+                  <v-text-field   
+                    step="any"
+                    min="0"
+                    ref="input"
+                    prefix="$"
+                    v-model="editedProduct.price"
+                    @keypress="isNumberKey($event)"
+                    ></v-text-field>
                 </v-col>
               </v-row>
               <v-row>
@@ -121,51 +148,58 @@
                 >
                   <v-card>
                     <v-card-title>
-                      <span class="text-h5">Test</span>
+                      <span class="text-h5">Edit Product</span>
                     </v-card-title>
 
                     <v-card-text>
                       <v-container>
                         <v-row>
                           <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
+                            cols="6"
                           >
                             <v-text-field
                               v-model="editedProduct.name"
-                              label="Dessert name"
+                              label="Product name"
                             ></v-text-field>
                           </v-col>
                           <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
+                            cols="6"
                           >
                             <v-text-field
                               v-model="editedProduct.description"
-                              label="description (g)"
+                              label="Description"
                             ></v-text-field>
                           </v-col>
                           <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
+                            cols="6"
                           >
                             <v-text-field
                               v-model="editedProduct.price"
-                              label="price (g)"
+                              label="Price"
+                              min="0"
+                              ref="input"
+                              @keypress="isNumberKey($event)"
                             ></v-text-field>
                           </v-col>
                           <v-col
-                            cols="12"
-                            sm="6"
-                            md="4"
+                            cols="6"
                           >
-                            <v-text-field
+                            <!-- <v-text-field
                               v-model="editedProduct.store"
-                              label="store (g)"
+                              label="Store"
                             ></v-text-field>
+                             -->
+                            <v-autocomplete
+                              label="Store"
+                              auto-select-first
+                              filled
+                              solo
+                              v-model="editedProduct.store"
+                              :items="stores"
+                              item-text="name"
+                              item-value="name"
+                              :rules="requireRules"
+                            ></v-autocomplete>
                           </v-col>
                         </v-row>
                       </v-container>
@@ -232,11 +266,19 @@ export default {
   name: 'App',
 
   data: () => ({
+    rulesAlphaN: [
+        value => !!value || 'Alphanumeric Required',
+      ],
     requireRules:[
       value=>!!value||'Required'
     ],
+    numberRule:[
+      value=>!!value||'Numbers Required'
+    ],
     Product_Store:"",
+    productCode:"",
     Name:"",
+    SKU:"",
     Description:"",
     Price:"",
     dialogCreate: false,
@@ -254,21 +296,21 @@ export default {
     products: [
       {
       id: '1',
-      name: 'Laptop',
+      name: 'BC123 - Laptop - 0001239',
       description: 'Laptop apple',
       price: '$ 5000',
       store: 'Apple',
       },
       {
       id: '2',
-      name: 'Balon',
+      name: 'XZ12 - Balon - 11101456',
       description: 'Balon de Futbol',
       price: '$ 200',
       store: 'Adidas',
       },
       {
       id: '3',
-      name: 'Pants',
+      name: 'L1O4 - Pants - 222231234',
       description: 'Sport Pants',
       price: '$ 800',
       store: 'Nike',
@@ -279,14 +321,14 @@ export default {
       id: '',
       name: '',
       description: '',
-      price: '',
+      price: '0',
       store: '',
     },
     defaultItem: {
       id: '',
       name: '',
       description: '',
-      price: '',
+      price: '0',
       store: '',
     },
   }),
@@ -299,6 +341,8 @@ export default {
       if(this.$refs.form.validate()){
       //console.log(this.products.length);
        this.editedProduct.id=this.products.length + 1;
+       this.editedProduct.price="$ "+this.editedProduct.price;
+       this.editedProduct.name=this.productCode +" - "+this.Name+" - "+this.SKU;
         if (this.editedIndex > -1) {
           Object.assign(this.products[this.editedIndex], this.editedProduct)
         } else {
@@ -329,6 +373,10 @@ export default {
       }
     },
     clearForm(){
+      this.productCode="";
+      this.Name="";
+      this.SKU="";
+       
       this.editedProduct=this.defaultItem;
     },
     async refreshStores(){
@@ -378,24 +426,33 @@ export default {
     closeDelete(){
         this.dialogDelete = false
         this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedProduct = Object.assign({}, this.defaultItem)
           this.editedIndex = -1
         })
     },
     save(){
         if (this.editedIndex > -1) {
-          Object.assign(this.products[this.editedIndex], this.editedItem)
+          Object.assign(this.products[this.editedIndex], this.editedProduct)
         } else {
-          this.products.push(this.editedItem)
+          this.products.push(this.editedProduct)
         }
         this.close()
     },
     close(){
         this.dialog = false
         this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedProduct = Object.assign({}, this.defaultItem)
           this.editedIndex = -1
         })
+    },
+    isNumberKey(evt) {
+      evt = (evt) ? evt : window.event;
+      var charCode = (evt.which) ? evt.which : evt.keyCode;
+      if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+        evt.preventDefault();;
+      } else {
+        return true;
+      }
     },
   },
 };
