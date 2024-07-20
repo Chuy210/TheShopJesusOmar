@@ -381,7 +381,7 @@ export default {
     },
     async refreshStores(){
      try {
-        const response = await axios.get('http://localhost:3000/getStores',{
+        const response = await axios.get('https://theshopjesusomar.onrender.com/getStores',{
             headers: {
                 "Content-Type": "application/json"
             }
@@ -395,7 +395,7 @@ export default {
     },
     async refreshTable(){
      try {
-        const response = await axios.get('http://localhost:3000/getProducts',{
+        const response = await axios.get('https://theshopjesusomar.onrender.com/getProducts',{
             headers: {
                 "Content-Type": "application/json"
             }
