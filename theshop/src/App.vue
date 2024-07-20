@@ -377,7 +377,13 @@ export default {
       this.Name="";
       this.SKU="";
        
-      this.editedProduct=this.defaultItem;
+      this.editedProduct={
+        id: '',
+        name: '',
+        description: '',
+        price: '0',
+        store: '',
+      };
     },
     async refreshStores(){
      try {
