@@ -12,11 +12,11 @@ app.use(cors())
 
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'./dist')))
+//app.use(express.static(path.join(__dirname,'./dist')))
 
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname,'./dist', 'index.html'));
-});
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname,'./dist', 'index.html'));
+// });
 app.get("/getStores", async (req, res) => {
     try {
         console.log("entre al token zoho");
