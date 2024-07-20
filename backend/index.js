@@ -35,11 +35,50 @@ app.get("/getStores", async (req, res) => {
         res.status(400).send({error: error.message});
     }
 });
+app.get("/getProducts", async (req, res) => {
+    try {
+        console.log("entre al token zoho");
+        const response = await axios.get('https://shop.interconnecta.dev/api/products', {
+            headers: {
+                "Content-Type": "application/json",
+                "Authtoken": 'f734df3d968cde70abbb1cf79d9dba'
+            }
+        });
+
+        const responseData = response.data;
+        console.log(responseData);
+        res.status(200).send({resp: responseData});
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(400).send({error: error.message});
+    }
+});
 app.post("/postStores", async (req, res) => {
     try {
         
         const {body}=req;
         const response = await axios.post('https://shop.interconnecta.dev/api/stores',body, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authtoken": 'f734df3d968cde70abbb1cf79d9dba'
+            },
+        });
+
+        const responseData = response.data;
+        console.log(responseData);
+        
+       //console.log(req);
+        res.status(200).send({resp: responseData});
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(400).send({error: error.message});
+    }
+});
+app.post("/postProducts", async (req, res) => {
+    try {
+        
+        const {body}=req;
+        const response = await axios.post('https://shop.interconnecta.dev/api/products',body, {
             headers: {
                 "Content-Type": "application/json",
                 "Authtoken": 'f734df3d968cde70abbb1cf79d9dba'

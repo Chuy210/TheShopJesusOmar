@@ -20,21 +20,50 @@
           <v-card
             max-width="50%"
             elevation="4"
-            class="my-5"
+            class="my-5 px-3"
             style="margin-left: 25%; "
           >
             <form>
-              
+              <v-row>
+                <v-col cols="4">
+                  <v-subheader>Product Store</v-subheader>
+                </v-col>
+                <v-col cols="8" >
+                  <v-autocomplete
+                    auto-select-first
+                    filled
+                    solo
+                    v-model="editedProduct.store"
+                    :items="stores"
+                    item-text="name"
+                    item-value="name"
+                    :rules="requireRules"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
               <v-row>
                 <v-col cols="4">
                   <v-subheader>Product Name</v-subheader>
                 </v-col>
                 <v-col cols="8">
                   <v-text-field
-                    v-model="Name"
+                    v-model="editedProduct.name"
                     label="Name"
-                    required
+                    :rules="requireRules"
                   ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <v-subheader>Description</v-subheader>
+                </v-col>
+                <v-col cols="8">
+                  <v-textarea
+                  v-model="editedProduct.description"
+                    solo
+                    name="input-7-4"
+                    label="Description"
+                  ></v-textarea>
                 </v-col>
               </v-row>
               <v-row>
@@ -43,21 +72,29 @@
                 </v-col>
                 <v-col cols="8">
                   <v-text-field
+                    v-model="editedProduct.price"
                     label="Price"
-                    value="10.00"
                     prefix="$"
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-btn
-                class="mr-4"
-                @click="createProduct"
-              >
-                Create New Product
-              </v-btn>
-              <v-btn @click="clearForm">
-                clear
-              </v-btn>
+              <v-row>
+                <v-col></v-col>
+                <v-col>
+                  <v-btn
+                    class="mr-4"
+                    @click="createProduct"
+                  >
+                    Create New Product
+                  </v-btn>
+                </v-col>
+                <v-col>
+                  <v-btn @click="clearForm">
+                    clear
+                  </v-btn>
+                </v-col>
+                <v-col></v-col>
+              </v-row>
             </form>
           </v-card>
           <!-- Data Table, All products -->
@@ -195,12 +232,17 @@ export default {
   name: 'App',
 
   data: () => ({
+    requireRules:[
+      value=>!!value||'Required'
+    ],
     Product_Store:"",
     Name:"",
     Description:"",
     Price:"",
+    dialogCreate: false,
     dialog: false,
     dialogDelete: false,
+    stores:[],
     headers: [
       { text: 'id',align: 'start',sortable: false,value: 'id'},
       { text: 'Name', value: 'name' },
@@ -211,21 +253,21 @@ export default {
     ],
     products: [
       {
-      id: '0001',
+      id: '1',
       name: 'Laptop',
       description: 'Laptop apple',
       price: '$ 5000',
       store: 'Apple',
       },
       {
-      id: '0002',
+      id: '2',
       name: 'Balon',
       description: 'Balon de Futbol',
       price: '$ 200',
       store: 'Adidas',
       },
       {
-      id: '0003',
+      id: '3',
       name: 'Pants',
       description: 'Sport Pants',
       price: '$ 800',
@@ -248,28 +290,31 @@ export default {
       store: '',
     },
   }),
-   async mounted() {
-     try {
-        const response = await axios.get('/getStores',{
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        const responseData = response.data;
-        console.log(responseData);
-    } catch (error) {
-        console.error("Error fetching data:", error);
-    }
+  mounted() {
+    this.refreshStores();
     this.refreshTable();
   },
   methods: {
     async createProduct(){
+      if(this.$refs.form.validate()){
+      //console.log(this.products.length);
+       this.editedProduct.id=this.products.length + 1;
+        if (this.editedIndex > -1) {
+          Object.assign(this.products[this.editedIndex], this.editedProduct)
+        } else {
+          this.products.push(this.editedProduct)
+        }
+        this.clearForm();
+      // Create Product, but there is a Server error
+      /*
       try {
             const body={
-                  "name":"Test 2",
-                  "category":"TESTO"
+                  "store_id":"4423254000036622000",
+                  "name":"Balon Puma",
+                  "description":"Balon Puma para futbol",
+                  "price":250
               };
-              const response = await axios.post('/postStores', body,{
+              const response = await axios.post('http://localhost:3000/postProducts', body,{
                   headers: {
                       "Content-Type": "application/json"
                   }
@@ -279,12 +324,39 @@ export default {
           } catch (error) {
               console.error("Error fetching data:", error);
           }
+      */
+        
+      }
     },
     clearForm(){
-
+      this.editedProduct=this.defaultItem;
     },
-    refreshTable(){
-
+    async refreshStores(){
+     try {
+        const response = await axios.get('http://localhost:3000/getStores',{
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const responseData = response.data;
+        console.log(responseData);
+        this.stores=responseData.resp.data;
+      } catch (error) {
+          console.error("Error fetching data:", error);
+      }
+    },
+    async refreshTable(){
+     try {
+        const response = await axios.get('http://localhost:3000/getProducts',{
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const responseData = response.data;
+        console.log(responseData);
+      } catch (error) {
+          console.error("Error fetching data:", error);
+      }
     },
     clearTable(){
 
